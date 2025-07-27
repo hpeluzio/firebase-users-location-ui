@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, Fragment, useMemo } from 'react';
 import type { User, CreateUserRequest, UpdateUserRequest } from '../../types/user';
 import UserList from './UserList';
 import UserForm from './UserForm';
@@ -20,12 +20,27 @@ const UserCRUD: React.FC = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Calculate paginated users
-  const total = users.length;
-  const totalPages = Math.ceil(total / pageSize);
-  const paginatedUsers = users.slice((page - 1) * pageSize, page * pageSize);
+  // Filter users by any field
+  const filteredUsers = useMemo(() => {
+    if (!users) return []; // Handle initial loading state
+    const q = ''; // No search term, so filter is always true
+    return users.filter((user) => {
+      return (
+        user.name.toLowerCase().includes(q) ||
+        user.zipCode.toLowerCase().includes(q) ||
+        (user.latitude !== undefined && String(user.latitude).includes(q)) ||
+        (user.longitude !== undefined && String(user.longitude).includes(q)) ||
+        (user.timezone ?? '').toLowerCase().includes(q)
+      );
+    });
+  }, [users]);
 
-  // Reset page if pageSize changes or users change
+  // Pagination
+  const total = filteredUsers.length;
+  const totalPages = Math.ceil(total / pageSize);
+  const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize);
+
+  // Reset page if pageSize or filtered users change
   useEffect(() => {
     setPage(1);
   }, [pageSize, total]);
@@ -81,12 +96,12 @@ const UserCRUD: React.FC = () => {
           <p className="text-red-800">{error}</p>
         </div>
       )}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Users</h2>
-        <div className="flex items-center gap-2">
+      {/* Removed search input, now handled in UserList */}
+      <div className="flex justify-between items-center mb-4 gap-2 flex-wrap">
+        <div className="flex flex-1 justify-end items-center gap-2 min-w-[200px]">
           <button
             onClick={handleCreateClick}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
           >
             <PlusIcon className="h-5 w-5" aria-hidden="true" />
             Add New User

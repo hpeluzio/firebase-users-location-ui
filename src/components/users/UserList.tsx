@@ -1,5 +1,6 @@
 import type { User } from '../../types/user';
 import { PencilSquareIcon, TrashIcon, UserIcon } from '@heroicons/react/24/outline';
+import { useState, useMemo, useEffect } from 'react';
 
 interface UserListProps {
   users: User[];
@@ -10,6 +11,15 @@ interface UserListProps {
   isLoading?: boolean;
   onEdit: (user: User) => void;
   onDelete: (userId: string) => void;
+}
+
+function useDebouncedValue<T>(value: T, delay: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debounced;
 }
 
 const UserList: React.FC<UserListProps> = ({
@@ -23,6 +33,25 @@ const UserList: React.FC<UserListProps> = ({
   onDelete,
 }) => {
   const totalPages = Math.ceil(total / pageSize);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 300);
+
+  const filteredUsers = useMemo(() => {
+    if (!debouncedSearch) return users;
+    const q = debouncedSearch.toLowerCase();
+    return users.filter((user) =>
+      user.name.toLowerCase().includes(q) ||
+      user.zipCode.toLowerCase().includes(q) ||
+      (user.latitude !== undefined && String(user.latitude).includes(q)) ||
+      (user.longitude !== undefined && String(user.longitude).includes(q)) ||
+      (user.timezone ?? '').toLowerCase().includes(q)
+    );
+  }, [users, debouncedSearch]);
+
+  // Paginate filtered users
+  const paginatedUsers = useMemo(() => {
+    return filteredUsers.slice((page - 1) * pageSize, page * pageSize);
+  }, [filteredUsers, page, pageSize]);
 
   if (isLoading) {
     return (
@@ -50,8 +79,15 @@ const UserList: React.FC<UserListProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">Users ({total})</h2>
+      <div className="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <h2 className="text-xl font-semibold text-gray-900">Users ({filteredUsers.length})</h2>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border-2 border-blue-300 rounded-lg px-2 py-1 text-sm w-full max-w-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+          placeholder="Search users by any field..."
+        />
       </div>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
@@ -65,7 +101,7 @@ const UserList: React.FC<UserListProps> = ({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {users.map((user) => (
+          {paginatedUsers.map((user) => (
             <tr key={user.id} className="hover:bg-gray-50 transition-colors">
               <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
                 <UserIcon className="h-6 w-6 text-blue-400 flex-shrink-0" aria-hidden="true" />
