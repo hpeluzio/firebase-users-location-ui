@@ -81,8 +81,10 @@ const UserList: React.FC<UserListProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-      <div className="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+      <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-900">Users ({filteredUsers.length})</h2>
+      </div>
+      <div className="px-6 py-2 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <input
           type="text"
           value={search}
@@ -90,19 +92,19 @@ const UserList: React.FC<UserListProps> = ({
           className="border-2 border-blue-300 rounded-lg px-2 py-1 text-sm w-full max-w-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           placeholder="Search users by any field..."
         />
-      </div>
-      <div className="px-6 py-2 flex items-center gap-2 justify-end">
-        <label htmlFor="pageSize" className="text-sm text-gray-700">Rows per page:</label>
-        <select
-          id="pageSize"
-          value={pageSize}
-          onChange={e => setPageSize(Number(e.target.value))}
-          className="border rounded px-2 py-1 text-sm"
-        >
-          {PAGE_SIZE_OPTIONS.map(size => (
-            <option key={size} value={size}>{size}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <label htmlFor="pageSize" className="text-sm text-gray-700">Rows per page:</label>
+          <select
+            id="pageSize"
+            value={pageSize}
+            onChange={e => setPageSize(Number(e.target.value))}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            {PAGE_SIZE_OPTIONS.map(size => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
+        </div>
       </div>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
