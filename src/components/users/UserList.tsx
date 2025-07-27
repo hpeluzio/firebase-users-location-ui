@@ -4,10 +4,6 @@ import { useState, useMemo, useEffect } from 'react';
 
 interface UserListProps {
   users: User[];
-  page: number;
-  pageSize: number;
-  total: number;
-  onPageChange: (page: number) => void;
   isLoading?: boolean;
   onEdit: (user: User) => void;
   onDelete: (userId: string) => void;
@@ -22,19 +18,18 @@ function useDebouncedValue<T>(value: T, delay: number) {
   return debounced;
 }
 
+const PAGE_SIZE_OPTIONS = [5, 10, 20];
+
 const UserList: React.FC<UserListProps> = ({
   users,
-  page,
-  pageSize,
-  total,
-  onPageChange,
   isLoading = false,
   onEdit,
   onDelete,
 }) => {
-  const totalPages = Math.ceil(total / pageSize);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
   const filteredUsers = useMemo(() => {
     if (!debouncedSearch) return users;
@@ -48,10 +43,17 @@ const UserList: React.FC<UserListProps> = ({
     );
   }, [users, debouncedSearch]);
 
-  // Paginate filtered users
+  // Pagination
+  const total = filteredUsers.length;
+  const totalPages = Math.ceil(total / pageSize);
   const paginatedUsers = useMemo(() => {
     return filteredUsers.slice((page - 1) * pageSize, page * pageSize);
   }, [filteredUsers, page, pageSize]);
+
+  // Reset page if pageSize or filtered users change
+  useEffect(() => {
+    setPage(1);
+  }, [pageSize, total]);
 
   if (isLoading) {
     return (
@@ -88,6 +90,19 @@ const UserList: React.FC<UserListProps> = ({
           className="border-2 border-blue-300 rounded-lg px-2 py-1 text-sm w-full max-w-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           placeholder="Search users by any field..."
         />
+      </div>
+      <div className="px-6 py-2 flex items-center gap-2 justify-end">
+        <label htmlFor="pageSize" className="text-sm text-gray-700">Rows per page:</label>
+        <select
+          id="pageSize"
+          value={pageSize}
+          onChange={e => setPageSize(Number(e.target.value))}
+          className="border rounded px-2 py-1 text-sm"
+        >
+          {PAGE_SIZE_OPTIONS.map(size => (
+            <option key={size} value={size}>{size}</option>
+          ))}
+        </select>
       </div>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
@@ -136,7 +151,7 @@ const UserList: React.FC<UserListProps> = ({
       {/* Pagination Controls */}
       <div className="flex justify-center items-center gap-2 py-4 bg-gray-50 border-t border-gray-200">
         <button
-          onClick={() => onPageChange(page - 1)}
+          onClick={() => setPage(page - 1)}
           disabled={page === 1}
           className="px-2 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
         >
@@ -145,14 +160,14 @@ const UserList: React.FC<UserListProps> = ({
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
           <button
             key={p}
-            onClick={() => onPageChange(p)}
+            onClick={() => setPage(p)}
             className={`px-3 py-1 rounded ${p === page ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'} font-medium`}
           >
             {p}
           </button>
         ))}
         <button
-          onClick={() => onPageChange(page + 1)}
+          onClick={() => setPage(page + 1)}
           disabled={page === totalPages}
           className="px-2 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
         >

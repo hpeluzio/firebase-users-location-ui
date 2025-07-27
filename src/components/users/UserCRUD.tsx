@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment, useMemo } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import type { User, CreateUserRequest, UpdateUserRequest } from '../../types/user';
 import UserList from './UserList';
 import UserForm from './UserForm';
@@ -6,12 +6,8 @@ import { useUsers } from '../../hooks/useUsers';
 import { Dialog, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
-const PAGE_SIZE_OPTIONS = [5, 10, 20];
-
 const UserCRUD: React.FC = () => {
   const { users, loading, error, fetchUsers, createUser, updateUser, deleteUser } = useUsers();
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
   const [editingUser, setEditingUser] = useState<User | undefined>();
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -19,36 +15,6 @@ const UserCRUD: React.FC = () => {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
-
-  // Filter users by any field
-  const filteredUsers = useMemo(() => {
-    if (!users) return []; // Handle initial loading state
-    const q = ''; // No search term, so filter is always true
-    return users.filter((user) => {
-      return (
-        user.name.toLowerCase().includes(q) ||
-        user.zipCode.toLowerCase().includes(q) ||
-        (user.latitude !== undefined && String(user.latitude).includes(q)) ||
-        (user.longitude !== undefined && String(user.longitude).includes(q)) ||
-        (user.timezone ?? '').toLowerCase().includes(q)
-      );
-    });
-  }, [users]);
-
-  // Pagination
-  const total = filteredUsers.length;
-  const totalPages = Math.ceil(total / pageSize);
-  const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize);
-
-  // Reset page if pageSize or filtered users change
-  useEffect(() => {
-    setPage(1);
-  }, [pageSize, total]);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    setPage(newPage);
-  };
 
   const handleEditUser = (user: User) => {
     setEditingUser(user);
@@ -106,27 +72,12 @@ const UserCRUD: React.FC = () => {
             <PlusIcon className="h-5 w-5" aria-hidden="true" />
             Add New User
           </button>
-          <label htmlFor="pageSize" className="text-sm text-gray-700 ml-4">Rows per page:</label>
-          <select
-            id="pageSize"
-            value={pageSize}
-            onChange={e => setPageSize(Number(e.target.value))}
-            className="border rounded px-2 py-1 text-sm"
-          >
-            {PAGE_SIZE_OPTIONS.map(size => (
-              <option key={size} value={size}>{size}</option>
-            ))}
-          </select>
         </div>
       </div>
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1">
           <UserList
-            users={paginatedUsers}
-            page={page}
-            pageSize={pageSize}
-            total={total}
-            onPageChange={handlePageChange}
+            users={users}
             isLoading={loading}
             onEdit={handleEditUser}
             onDelete={handleDeleteUser}
