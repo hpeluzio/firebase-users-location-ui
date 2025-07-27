@@ -1,5 +1,5 @@
 import type { User } from '../../types/user';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, UserIcon } from '@heroicons/react/24/outline';
 
 interface UserListProps {
   users: User[];
@@ -57,12 +57,15 @@ const UserList: React.FC<UserListProps> = ({
         {users.map((user) => (
           <div key={user.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <h3 className="text-lg font-medium text-gray-900">{user.name}</h3>
-                <p className="text-sm text-gray-500">Zip Code: {user.zipCode}</p>
-                {user.id && (
-                  <p className="text-xs text-gray-400 mt-1">ID: {user.id}</p>
-                )}
+              <div className="flex-1 flex items-center gap-3">
+                <UserIcon className="h-6 w-6 text-blue-400 flex-shrink-0" aria-hidden="true" />
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">{user.name}</h3>
+                  <p className="text-sm text-gray-500">Zip Code: {user.zipCode}</p>
+                  {user.id && (
+                    <p className="text-xs text-gray-400 mt-1">ID: {user.id}</p>
+                  )}
+                </div>
               </div>
               <div className="flex gap-2">
                 <button
