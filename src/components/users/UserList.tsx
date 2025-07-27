@@ -1,4 +1,5 @@
 import type { User } from '../../types/user';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface UserListProps {
   users: User[];
@@ -66,14 +67,16 @@ const UserList: React.FC<UserListProps> = ({
               <div className="flex gap-2">
                 <button
                   onClick={() => onEdit(user)}
-                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="flex items-center gap-1 px-3 py-1 text-sm border border-blue-600 text-blue-600 bg-white rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
                 >
+                  <PencilSquareIcon className="h-5 w-5" aria-hidden="true" />
                   Edit
                 </button>
                 <button
                   onClick={() => user.id && onDelete(user.id)}
-                  className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  className="flex items-center gap-1 px-3 py-1 text-sm border border-red-600 text-red-600 bg-white rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
                 >
+                  <TrashIcon className="h-5 w-5" aria-hidden="true" />
                   Delete
                 </button>
               </div>

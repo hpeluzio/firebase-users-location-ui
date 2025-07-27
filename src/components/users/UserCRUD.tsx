@@ -4,6 +4,7 @@ import UserList from './UserList';
 import UserForm from './UserForm';
 import { useUsers } from '../../hooks/useUsers';
 import { Dialog, Transition } from '@headlessui/react';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -85,8 +86,9 @@ const UserCRUD: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleCreateClick}
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
+            <PlusIcon className="h-5 w-5" aria-hidden="true" />
             Add New User
           </button>
           <label htmlFor="pageSize" className="text-sm text-gray-700 ml-4">Rows per page:</label>

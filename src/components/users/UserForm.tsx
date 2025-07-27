@@ -1,6 +1,7 @@
 import { IMaskInput } from 'react-imask';
 import type { User, CreateUserRequest, UpdateUserRequest } from '../../types/user';
 import { useUserForm } from '../../hooks/useUserForm';
+import { PlusIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface UserFormProps {
   user?: User;
@@ -8,6 +9,13 @@ interface UserFormProps {
   onCancel: () => void;
   isLoading?: boolean;
 }
+
+const Spinner = () => (
+  <svg className="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+  </svg>
+);
 
 const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading = false }) => {
   const {
@@ -71,16 +79,23 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading
           <button
             type="submit"
             disabled={isLoading || isZipChecking}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2 border border-blue-600 text-blue-600 bg-white py-2 px-4 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {isLoading ? 'Saving...' : (isEditing ? 'Update User' : 'Create User')}
+            {isLoading ? (
+              <><Spinner /> {isEditing ? 'Updating...' : 'Creating...'}</>
+            ) : isEditing ? (
+              <><PencilSquareIcon className="h-5 w-5" aria-hidden="true" /> Update User</>
+            ) : (
+              <><PlusIcon className="h-5 w-5" aria-hidden="true" /> Create User</>
+            )}
           </button>
           <button
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50"
+            className="flex-1 flex items-center justify-center gap-2 border border-gray-400 text-gray-700 bg-white py-2 px-4 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 transition"
           >
+            <XMarkIcon className="h-5 w-5" aria-hidden="true" />
             Cancel
           </button>
         </div>
