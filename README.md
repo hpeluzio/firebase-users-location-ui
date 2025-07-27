@@ -1,4 +1,4 @@
-# User Management - RentRedi
+# User Management
 
 A modern, responsive user management UI built with React, TypeScript, Vite, and Tailwind CSS.
 
@@ -9,6 +9,7 @@ A modern, responsive user management UI built with React, TypeScript, Vite, and 
 - Friendly Inter font and modern UI
 - Zip code validation with live feedback
 - Responsive design
+- Comprehensive integration tests
 
 ## Getting Started
 
@@ -45,6 +46,11 @@ A modern, responsive user management UI built with React, TypeScript, Vite, and 
    pnpm preview
    ```
 
+5. **Run tests:**
+   ```bash
+   pnpm test:run
+   ```
+
 ### API Requirements
 
 - The app expects a backend API running at `http://localhost:3000` with endpoints:
@@ -60,6 +66,7 @@ A modern, responsive user management UI built with React, TypeScript, Vite, and 
 - `src/hooks/` — Custom React hooks for users, forms, and zip validation
 - `src/services/` — API service layer
 - `src/types/` — TypeScript types
+- `src/test/` — Test setup, mocks, and integration tests
 
 ## Customization
 
