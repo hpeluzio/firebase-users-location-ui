@@ -1,4 +1,4 @@
-import UserCRUD from './components/UserCRUD'
+import UserCRUD from './components/users/UserCRUD'
 import './App.css'
 
 function App() {
