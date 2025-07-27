@@ -17,6 +17,11 @@ A modern, responsive user management UI built with React, TypeScript, Vite, and 
 - [Node.js](https://nodejs.org/) (v22.17.1 recommended)
 - [pnpm](https://pnpm.io/) (recommended, but you can adapt for npm/yarn)
 
+> If you don't have pnpm installed, run:
+> ```bash
+> npm install -g pnpm
+> ```
+
 ### Setup
 
 1. **Install dependencies:**
