@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IMaskInput } from 'react-imask';
 import type { User, CreateUserRequest, UpdateUserRequest } from '../types/user';
+import axios from 'axios';
 
 interface UserFormProps {
   user?: User;
@@ -10,6 +11,7 @@ interface UserFormProps {
 }
 
 const ZIP_REGEX = /^\d{5}(-\d{4})?$/;
+const API_BASE_URL = 'http://localhost:3000';
 
 const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading = false }) => {
   const [formData, setFormData] = useState<CreateUserRequest>({
@@ -17,6 +19,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading
     zipCode: '',
   });
   const [zipError, setZipError] = useState<string | null>(null);
+  const [isZipValid, setIsZipValid] = useState<boolean | null>(null);
+  const [isZipChecking, setIsZipChecking] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isEditing = !!user;
 
@@ -26,13 +31,54 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading
         name: user.name,
         zipCode: user.zipCode,
       });
+      setIsZipValid(true);
+      setZipError(null);
     }
   }, [user]);
+
+  // Debounced zip code existence validation
+  useEffect(() => {
+    if (!formData.zipCode || !ZIP_REGEX.test(formData.zipCode)) {
+      setIsZipValid(null);
+      setZipError(null);
+      setIsZipChecking(false);
+      return;
+    }
+    setIsZipChecking(true);
+    setZipError(null);
+    setIsZipValid(null);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/zipcodes/validate/${formData.zipCode}`);
+        if (res.data && res.data.valid) {
+          setIsZipValid(true);
+          setZipError(null);
+        } else {
+          setIsZipValid(false);
+          setZipError('Zip code not found. Please enter a valid US zip code.');
+        }
+      } catch {
+        setIsZipValid(false);
+        setZipError('Zip code not found. Please enter a valid US zip code.');
+      } finally {
+        setIsZipChecking(false);
+      }
+    }, 500); // 500ms debounce
+    // Cleanup on unmount
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [formData.zipCode]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!ZIP_REGEX.test(formData.zipCode)) {
       setZipError('Zip code must be in valid US format (e.g., 12345 or 12345-6789)');
+      return;
+    }
+    if (isZipValid === false || isZipChecking) {
+      setZipError('Please enter a valid US zip code.');
       return;
     }
     setZipError(null);
@@ -53,8 +99,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading
     }
   };
 
-  // react-imask: mask for 5 or 9 digit zip codes (with optional dash)
-  // Mask explanation: 00000[\-0000] means 5 digits, optionally dash and 4 digits
   const zipMask = '00000[-0000]';
 
   return (
@@ -96,7 +140,10 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading
             placeholder="Enter zip code"
             autoComplete="off"
           />
-          {zipError && (
+          {isZipChecking && (
+            <p className="text-blue-600 text-xs mt-1">Validating zip code...</p>
+          )}
+          {zipError && !isZipChecking && (
             <p className="text-red-600 text-xs mt-1">{zipError}</p>
           )}
         </div>
@@ -104,7 +151,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, isLoading
         <div className="flex gap-3 pt-4">
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isZipChecking || isZipValid === false}
             className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Saving...' : (isEditing ? 'Update User' : 'Create User')}
