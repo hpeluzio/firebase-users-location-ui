@@ -4,8 +4,7 @@ import axios from 'axios';
 const ZIP_REGEX = /^\d{5}(-\d{4})?$/;
 const API_BASE_URL = 'http://localhost:3000';
 
-export function useZipValidation(initialZip = '') {
-  const [zip, setZip] = useState(initialZip);
+export function useZipValidation(zip: string) {
   const [zipError, setZipError] = useState<string | null>(null);
   const [isZipValid, setIsZipValid] = useState<boolean | null>(null);
   const [isZipChecking, setIsZipChecking] = useState(false);
@@ -45,8 +44,6 @@ export function useZipValidation(initialZip = '') {
   }, [zip]);
 
   return {
-    zip,
-    setZip,
     zipError,
     isZipValid,
     isZipChecking,

@@ -10,13 +10,7 @@ export function useUserForm(initialUser?: User, onSubmit?: (data: CreateUserRequ
     zipCode: '',
   });
   const [nameError, setNameError] = useState<string | null>(null);
-  const {
-    zip,
-    setZip,
-    zipError,
-    isZipValid,
-    isZipChecking,
-  } = useZipValidation(initialUser?.zipCode || '');
+  const { zipError, isZipValid, isZipChecking } = useZipValidation(formData.zipCode);
 
   useEffect(() => {
     if (initialUser) {
@@ -24,17 +18,13 @@ export function useUserForm(initialUser?: User, onSubmit?: (data: CreateUserRequ
         name: initialUser.name,
         zipCode: initialUser.zipCode,
       });
-      setZip(initialUser.zipCode);
     }
-  }, [initialUser, setZip]);
-
-  useEffect(() => {
-    setFormData(prev => ({ ...prev, zipCode: zip }));
-  }, [zip]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialUser]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | string) => {
     if (typeof e === 'string') {
-      setZip(e);
+      setFormData(prev => prev.zipCode !== e ? { ...prev, zipCode: e } : prev);
     } else {
       const { name, value } = e.target;
       setFormData(prev => ({ ...prev, [name]: value }));
