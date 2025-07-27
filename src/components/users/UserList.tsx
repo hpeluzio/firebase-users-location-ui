@@ -49,44 +49,54 @@ const UserList: React.FC<UserListProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-lg shadow-md overflow-x-auto">
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-900">Users ({total})</h2>
       </div>
-      <div className="divide-y divide-gray-200">
-        {users.map((user) => (
-          <div key={user.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 flex items-center gap-3">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zip Code</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latitude</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Longitude</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timezone</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {users.map((user) => (
+            <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+              <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
                 <UserIcon className="h-6 w-6 text-blue-400 flex-shrink-0" aria-hidden="true" />
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">{user.name}</h3>
-                  <p className="text-sm text-gray-500">Zip Code: {user.zipCode}</p>
-                  {user.id && (
-                    <p className="text-xs text-gray-400 mt-1">ID: {user.id}</p>
-                  )}
+                <span className="text-lg font-medium text-gray-900">{user.name}</span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">{user.zipCode}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">{user.latitude ?? '-'}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">{user.longitude ?? '-'}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">{user.timezone ?? '-'}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-right">
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => onEdit(user)}
+                    className="flex items-center gap-1 px-3 py-1 text-sm border border-blue-600 text-blue-600 bg-white rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+                  >
+                    <PencilSquareIcon className="h-5 w-5" aria-hidden="true" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => user.id && onDelete(user.id)}
+                    className="flex items-center gap-1 px-3 py-1 text-sm border border-red-600 text-red-600 bg-white rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                  >
+                    <TrashIcon className="h-5 w-5" aria-hidden="true" />
+                    Delete
+                  </button>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onEdit(user)}
-                  className="flex items-center gap-1 px-3 py-1 text-sm border border-blue-600 text-blue-600 bg-white rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
-                >
-                  <PencilSquareIcon className="h-5 w-5" aria-hidden="true" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => user.id && onDelete(user.id)}
-                  className="flex items-center gap-1 px-3 py-1 text-sm border border-red-600 text-red-600 bg-white rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
-                >
-                  <TrashIcon className="h-5 w-5" aria-hidden="true" />
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       {/* Pagination Controls */}
       <div className="flex justify-center items-center gap-2 py-4 bg-gray-50 border-t border-gray-200">
         <button
